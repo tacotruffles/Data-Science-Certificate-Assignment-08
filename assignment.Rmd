@@ -25,13 +25,23 @@ Create variables to represent the tables: `genres, albums, artists, tracks, invo
 ```
 
 
-Who are the first 10 `customers` in the database?
+Who are the first 10 `customers` in the database? Return only `FirstName` and `LastName`
+Answer using SQL and `dbGetQuery()` (not `tbl()`)
 ```{r}
 #
 ```
 
 
-Who is the top customer in each country?
+Complete the same task as above using `tbl()`
+```{r}
+
+```
+
+
+For the rest of the assignment, use the `tbl()` ... you may use raw SQL if it is easier for you.
+
+
+Count the number of `customers` by `country` and arrange in descending order.
 ```{r}
 #
 ```
