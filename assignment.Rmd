@@ -25,7 +25,7 @@ Create variables to represent the tables: `genres, albums, artists, tracks, invo
 ```
 
 
-Who are the top 10 customers?
+Who are the first 10 `customers` in the database?
 ```{r}
 #
 ```
