@@ -1,0 +1,96 @@
+---
+title: "Assignment"
+author: "Scott Stoltzman"
+date: "6/12/2019"
+output: html_document
+---
+
+Display all of your answers by simply writing the variable name at the end of the code block.
+
+Load libraries that you need
+```{r setup, warning=FALSE, message=FALSE}
+library("tidyverse")
+library("DBI")
+```
+
+Connect to `chinook.db`
+```{r}
+#
+```
+
+
+Create variables to represent the tables: `genres, albums, artists, tracks, invoices, customers, media_types`. This will make it easier to use these tables later on.
+```{r}
+#
+```
+
+
+Who are the top 10 customers?
+```{r}
+#
+```
+
+
+Who is the top customer in each country?
+```{r}
+#
+```
+
+
+Plot the sum of `Total` from invoices by year in a line chart.
+```{r}
+#
+```
+
+
+What's the average length of a `track` for each `artist` on each `album`?
+```{r}
+#
+```
+
+
+
+If the different `media_types` cost different amounts of money to sell, calculate your top 10 most profitable tracks. For this example, all costs are equal EXCEPT for the `media_type`.  
+
+COSTS:  
+
+  - MPEG = $0.15
+  - Protected MPEG-4 = $0.25
+  - AAC = $0.03
+  - Protected AAC = $0.10
+  - Purchased AAC = $0.08
+  
+```{r}
+#
+```
+
+
+Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes 
+```{r}
+
+```
+
+
+Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes, `facet_wrap` by `media_type`
+```{r}
+
+```
+
+
+Create a linear regression model using `milliseconds` as a predictor of `bytes`. Hint, formula: `bytes ~ milliseconds`
+```{r}
+
+```
+
+
+Create a linear model using the same formula but split it out according to `media_type`
+```{r}
+
+```
+
+
+Create a linear model using the same formula but split it out according to `artist`
+```{r}
+
+```
+
