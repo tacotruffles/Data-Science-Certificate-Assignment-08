@@ -1,0 +1,109 @@
+---
+title: "Demonstration"
+author: "Scott Stoltzman"
+date: "6/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library('tidyverse')
+library('DBI')
+```
+
+#### Establishes a connection, you can replace RSQLite with another database
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "chinook.db")
+```
+
+
+#### Commands
+```{r}
+# Show all tables
+dbListTables(con)
+```
+
+
+```{r}
+# Select all data from genres
+qry = 'SELECT * FROM genres'
+dbGetQuery(con, qry)
+```
+
+
+#### Tidyverse will make life easier...
+```{r}
+tbl(con, 'genres')
+```
+
+
+
+Easily filter data:
+```{r}
+tbl(con, 'genres') %>% filter(Name == 'Jazz')
+```
+
+
+
+#### How do we group albums by artist?
+```{r}
+tbl(con, 'albums')
+```
+
+```{r}
+tbl(con, 'artists')
+```
+
+
+Create variables for table connections for simplicity:
+```{r}
+artists = tbl(con, 'artists')
+albums = tbl(con, 'albums')
+```
+
+Then use dplyr join to merge the two. You see ArtistId in both `albums` and `artists`
+```{r}
+albums %>% 
+  left_join(artists, by = 'ArtistId')
+```
+
+Proceed to do your `dplyr` wrangling as normal!
+```{r}
+albums %>% 
+  left_join(artists, by = 'ArtistId') %>%
+  select(Name, Title)
+```
+
+
+
+How many albums did each artist put out? Sort this in descending order.
+```{r}
+albums %>% 
+  left_join(artists, by = 'ArtistId') %>%
+  group_by(Name) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+```
+
+What data type is this??
+```{r}
+what_is_this = albums %>% 
+  left_join(artists, by = 'ArtistId') %>%
+  group_by(Name) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+class(what_is_this)
+```
+
+So what does that mean???
+```{r}
+what_is_this %>% show_query()
+```
+
+
+It means you can have the database do the heavy lifting! Then results are easy to convert to a tibble.
+```{r}
+what_is_this %>% as_tibble()
+```
+
