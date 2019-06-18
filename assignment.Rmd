@@ -34,7 +34,7 @@ Answer using SQL and `dbGetQuery()` (not `tbl()`)
 
 Complete the same task as above using `tbl()`
 ```{r}
-
+#
 ```
 
 

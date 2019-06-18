@@ -27,7 +27,7 @@ dbListTables(con)
 
 ```{r}
 # Select all data from genres
-qry = 'SELECT * FROM genres'
+qry = 'SELECT * FROM genres;'
 dbGetQuery(con, qry)
 ```
 
@@ -48,7 +48,8 @@ tbl(con, 'genres') %>% filter(Name == 'Jazz')
 
 #### How do we group albums by artist?
 ```{r}
-tbl(con, 'albums')
+tbl(con, 'albums') %>%
+  left_join(tbl(con, 'artists'), by = 'ArtistId')
 ```
 
 ```{r}
