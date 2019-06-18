@@ -1,0 +1,173 @@
+---
+title: "Assignment"
+author: "Scott Stoltzman"
+date: "6/12/2019"
+output: html_document
+---
+
+Display all of your answers by simply writing the variable name at the end of the code block.
+
+Load libraries that you need
+```{r setup, warning=FALSE, message=FALSE}
+library("tidyverse")
+library("DBI")
+```
+
+Connect to `chinook.db`
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "chinook.db")
+```
+
+
+Create variables to represent the tables: `genres, albums, artists, tracks, invoices, customers, media_types`. This will make it easier to use these tables later on.
+```{r}
+genres = tbl(con, 'genres')
+albums = tbl(con, 'albums')
+artists = tbl(con, 'artists')
+tracks = tbl(con, 'tracks')
+invoices = tbl(con, 'invoices')
+customers = tbl(con, 'customers')
+media_types = tbl(con, 'media_types')
+```
+
+
+Who are the first 10 `customers` in the database? Return only `FirstName` and `LastName`
+Answer using SQL and `dbGetQuery()` (not `tbl()`)
+```{r}
+qry = 'SELECT FirstName, LastName FROM customers LIMIT 10'
+dbGetQuery(con, qry)
+```
+
+Complete the same task as above using `tbl()`
+```{r}
+customers %>% 
+  as_tibble() %>%
+  head(10)
+```
+
+
+For the rest of the assignment, use the `tbl()` ... you may use raw SQL if it is easier for you.
+
+
+Count the number of `customers` by `country` and arrange in descending order.
+```{r}
+customers %>%
+  group_by(Country) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+```
+
+
+Plot the sum of `Total` from invoices by year in a line chart.
+```{r}
+invoices %>%
+  as_tibble() %>%
+  mutate(date = as.Date(InvoiceDate, format = '%Y-%m-%d'),
+         year = lubridate::year(date)) %>%
+  group_by(year) %>%
+  summarize(Total = sum(Total)) %>%
+  ggplot(aes(x = year, y = Total)) + 
+  geom_line()
+```
+
+
+What's the average length of a `track` for each `artist` on each `album`?
+```{r}
+tracks %>%
+  left_join(albums, by = 'AlbumId') %>%
+  left_join(artists, by = 'ArtistId') %>%
+  group_by(Name.y, Name.x) %>%
+  summarize(avg_track_length = mean(Milliseconds, na.rm = TRUE))
+```
+
+
+
+If the different `media_types` cost different amounts of money to sell, calculate your top 10 most profitable tracks. For this example, all costs are equal EXCEPT for the `media_type`.  
+
+COSTS:  
+
+  - MPEG = $0.15
+  - Protected MPEG-4 = $0.25
+  - AAC = $0.03
+  - Protected AAC = $0.10
+  - Purchased AAC = $0.08
+  
+```{r}
+media_type_cost = tibble(Name = c('MPEG audio file', 
+                                  'Protected AAC audio file',
+                                  'Protected MPEG-4 video file',
+                                  'Purchased AAC audio file',
+                                  'AAC audio file'),
+                         Costs = c(0.15,
+                                   0.10,
+                                   0.25,
+                                   0.08,
+                                   0.03))
+ 
+
+tracks %>% 
+  left_join(media_types, by = 'MediaTypeId') %>%
+  as_tibble() %>%
+  left_join(media_type_cost, by = c('Name.y' = 'Name')) %>%
+  mutate(profit = UnitPrice - Costs) %>%
+  select(Name.x, profit) %>%
+  arrange(-profit)
+
+```
+
+
+Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes 
+```{r}
+tracks %>% 
+  as_tibble() %>% 
+  ggplot(aes(x=Milliseconds, y=Bytes)) + 
+  geom_point()
+```
+
+
+Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes, `facet_wrap` by `media_type`
+```{r}
+tracks %>%
+  left_join(media_types, by = 'MediaTypeId') %>% 
+  as_tibble() %>% 
+  ggplot(aes(x=Milliseconds, y=Bytes)) + 
+  geom_point() + 
+  facet_wrap(~Name.y)
+```
+
+
+Create a linear regression model using `milliseconds` as a predictor of `bytes`. Hint, formula: `bytes ~ milliseconds`
+```{r}
+fit = lm(Bytes ~ Milliseconds, data = tracks %>% as_tibble())
+summary(fit)
+```
+
+
+Create a linear model using the same formula but split it out according to `media_type`
+```{r}
+models = tracks %>% 
+  select(-Name) %>%
+  left_join(media_types, by = 'MediaTypeId') %>%
+  as_tibble() %>%
+  group_by(Name) %>%
+  do(fit = lm(Bytes ~ Milliseconds, data = .))
+models
+models$fit
+```
+
+
+Create a linear model using the same formula but split it out according to `artist`
+```{r}
+models = tracks %>% 
+  select(-Name) %>%
+  left_join(media_types, by = 'MediaTypeId') %>%
+  select(-Name) %>%
+  left_join(albums, by = 'AlbumId') %>%
+  left_join(artists, by = 'ArtistId') %>%
+  as_tibble() %>%
+  group_by(Name) %>%
+  do(fit = lm(Bytes ~ Milliseconds, data = .))
+models
+models$fit
+```
+
