@@ -10,7 +10,10 @@ Display all of your answers by simply writing the variable name at the end of th
 Load libraries that you need
 ```{r setup, warning=FALSE, message=FALSE}
 library("tidyverse")
+library('RSQLite')
 library("DBI")
+library('modelr')
+library('purrr')
 ```
 
 Connect to `chinook.db`
@@ -101,6 +104,7 @@ Create a linear model using the same formula but split it out according to `medi
 
 Create a linear model using the same formula but split it out according to `artist`
 ```{r}
-
+# should this be a for loop?
+# is there a more efficient way?
 ```
 

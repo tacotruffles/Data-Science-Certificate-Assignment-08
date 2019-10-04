@@ -9,11 +9,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 
 library('tidyverse')
+library('RSQLite')
 library('DBI')
+library('modelr')
+library('purrr')
 ```
+
+Cheat sheets available at <https://rstudio.com/resources/cheatsheets/>
+We will look at an example of using the cheatsheet to achieve an objective with `purrr`
+
+
 
 #### Establishes a connection, you can replace RSQLite with another database
 ```{r}
+# You pass a driver and then the location of the database (and credentials if required)
 con <- DBI::dbConnect(RSQLite::SQLite(), "chinook.db")
 ```
 
@@ -106,5 +115,10 @@ what_is_this %>% show_query()
 It means you can have the database do the heavy lifting! Then results are easy to convert to a tibble.
 ```{r}
 what_is_this %>% as_tibble()
+```
+
+
+```{r}
+
 ```
 
