@@ -7,17 +7,12 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library('tidyverse')
 library('RSQLite')
 library('DBI')
-library('modelr')
-library('purrr')
 ```
 
-Cheat sheets available at <https://rstudio.com/resources/cheatsheets/>
-We will look at an example of using the cheatsheet to achieve an objective with `purrr`
-
+Cheat sheets for `tidyverse` available at <https://rstudio.com/resources/cheatsheets/>
 
 
 #### Establishes a connection, you can replace RSQLite with another database
@@ -117,8 +112,64 @@ It means you can have the database do the heavy lifting! Then results are easy t
 what_is_this %>% as_tibble()
 ```
 
-
+Close out your connections:
 ```{r}
-
+DBI::dbDisconnect(con)
 ```
+
+
+
+Connect to the `beers.db` database
+```{r}
+con = dbConnect(RSQLite::SQLite(), 'beers.db')
+```
+
+
+Show all of the tables:
+```{r}
+dbListTables(con)
+```
+
+
+Show all categories
+```{r}
+tbl(con, 'categories')
+```
+
+
+Show the number of beers per brewery
+```{r}
+beers = tbl(con, 'beers')
+breweries = tbl(con, 'breweries')
+
+breweries %>%
+  rename(brewery = name) %>%
+  inner_join(beers, by = 'brewery_id') %>%
+  rename(beer = name) %>%
+  group_by(brewery) %>%
+  count() %>%
+  as_tibble() %>%
+  spread(key = brewery, value = n)
+
+# why did this fail???
+```
+
+Show the result and the query for the count of the number of beers per category
+```{r}
+beers = tbl(con, 'beers')
+categories = tbl(con, 'categories')
+
+dat = beers %>%
+  rename(beer = name) %>%
+  inner_join(categories, by = c('cat_id' = 'id')) %>%
+  group_by(cat_name) %>%
+  count()
+
+dat
+
+dat %>% show_query()
+  
+```
+
+
 

@@ -12,13 +12,11 @@ Load libraries that you need
 library("tidyverse")
 library('RSQLite')
 library("DBI")
-library('modelr')
-library('purrr')
 ```
 
 Connect to `chinook.db`
 ```{r}
-#
+# 
 ```
 
 
@@ -41,8 +39,7 @@ Complete the same task as above using `tbl()`
 ```
 
 
-For the rest of the assignment, use the `tbl()` ... you may use raw SQL if it is easier for you.
-
+For the rest of the assignment, please use the `tbl()` function ... but you may use raw SQL if it is easier for you.
 
 Count the number of `customers` by `country` and arrange in descending order.
 ```{r}
@@ -78,6 +75,21 @@ COSTS:
 ```
 
 
+Use `tidyr` functions `spread()` or `gather()` to show data that counts the number of `artists` by `genre` looks like the following:
+```{r}
+# A tibble: 1 x 26
+#   Alternative `Alternative & … Blues `Bossa Nova` Classical Comedy Drama `Easy Listening`
+#         <int>            <int> <int>        <int>     <int>  <int> <int>            <int>
+#          40              332    81           15        74     17    64               24
+# … with 18 more variables: `Electronica/Dance` <int>, `Heavy Metal` <int>, `Hip Hop/Rap` <int>,
+#   Jazz <int>, Latin <int>, Metal <int>, Opera <int>, Pop <int>, `R&B/Soul` <int>, Reggae <int>,
+#   Rock <int>, `Rock And Roll` <int>, `Sci Fi & Fantasy` <int>, `Science Fiction` <int>,
+#   Soundtrack <int>, `TV Shows` <int>, World <int>, `<NA>` <int>
+  
+```
+
+
+
 Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes 
 ```{r}
 
@@ -99,12 +111,5 @@ Create a linear regression model using `milliseconds` as a predictor of `bytes`.
 Create a linear model using the same formula but split it out according to `media_type`
 ```{r}
 
-```
-
-
-Create a linear model using the same formula but split it out according to `artist`
-```{r}
-# should this be a for loop?
-# is there a more efficient way?
 ```
 
