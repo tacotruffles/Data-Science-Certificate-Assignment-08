@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+#install.packages(c('RSQLite', 'DBI'))
 knitr::opts_chunk$set(echo = TRUE)
 library('tidyverse')
 library('RSQLite')

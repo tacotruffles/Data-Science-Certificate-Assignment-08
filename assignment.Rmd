@@ -12,17 +12,26 @@ Load libraries that you need
 library("tidyverse")
 library('RSQLite')
 library("DBI")
+library("lubridate")
 ```
 
 Connect to `chinook.db`
 ```{r}
 # 
+con <- DBI::dbConnect(RSQLite::SQLite(), "chinook.db")
 ```
 
 
 Create variables to represent the tables: `genres, albums, artists, tracks, invoices, customers, media_types`. This will make it easier to use these tables later on.
 ```{r}
 #
+genres      <- tbl(con, 'genres')
+albums      <- tbl(con, 'albums')
+artists     <- tbl(con, 'artists')
+tracks      <- tbl(con, 'tracks')
+invoices    <- tbl(con, 'invoices')
+customers   <- tbl(con, 'customers')
+media_types <- tbl(con, 'media_types')
 ```
 
 
@@ -30,12 +39,18 @@ Who are the first 10 `customers` in the database? Return only `FirstName` and `L
 Answer using SQL and `dbGetQuery()` (not `tbl()`)
 ```{r}
 #
+qry <- "SELECT FirstName, LastName FROM customers LIMIT(10)"
+dbGetQuery(con, qry)
 ```
 
 
 Complete the same task as above using `tbl()`
 ```{r}
 #
+firstTen <- tbl(con, 'customers') %>%
+  select(FirstName, LastName)
+  head(10)
+firstTen
 ```
 
 
@@ -44,18 +59,43 @@ For the rest of the assignment, please use the `tbl()` function ... but you may 
 Count the number of `customers` by `country` and arrange in descending order.
 ```{r}
 #
+customers %>%
+  group_by(Country) %>%
+  count() %>%
+  arrange(-n)
 ```
 
 
 Plot the sum of `Total` from invoices by year in a line chart.
 ```{r}
 #
+invoices %>%
+  mutate(year = as.Date(InvoiceDate)) %>% # extract year
+  group_by(year) %>%
+  summarize(yearly_total = sum(year, na.rm = TRUE)) %>%
+  as_tibble() %>% # convert to proper tibble datafram fro plotting
+  ggplot() +
+  geom_line(aes(x=year, y=yearly_total), color ='blue')
 ```
 
 
 What's the average length of a `track` for each `artist` on each `album`?
 ```{r}
 #
+avg_track_length <- tracks %>%
+  left_join(albums, by='AlbumId') %>%
+  left_join(artists, by='ArtistId') %>%
+  # rename(c('Name.y' = 'Artist')) %>%
+  group_by(Name.y, Title) %>% # artist, album
+  summarize(
+    artist=Name.y,
+    length=Milliseconds,
+    avg_leng=mean(Milliseconds),
+    n = n()
+  ) %>%
+  select(artist, avg_leng)
+  
+avg_track_length
 ```
 
 
@@ -71,7 +111,32 @@ COSTS:
   - Purchased AAC = $0.08
   
 ```{r}
-#
+# Cost Vector
+costs <- tribble(
+  ~key, ~val,
+     "MPEG audio file", .15,
+     "Protected MPEG-4 video file", .25,
+     "AAC audio file", .03,
+     "Protected AAC audio file", .10,
+     "Purchased AAC audio file", .08
+)
+
+TrackSales <- tracks %>%
+  left_join(media_types, by='MediaTypeId') %>%
+  rename(TrackName = Name.x) %>%
+  rename(MediaTypeName = Name.y) %>%
+  as_tibble()ß
+
+mostProfitableTracks <- TrackSales %>%
+  mutate(
+    # select cost based on media type
+    profit = UnitPrice - (costs$val[match("Protected AAC audio file", costs$key)])
+  ) %>%
+  arrange(-profit) %>%
+  select(TrackName, profit) %>%
+  head(10)
+
+mostProfitableTracks
 ```
 
 
