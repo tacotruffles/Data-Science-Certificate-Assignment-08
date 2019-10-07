@@ -150,31 +150,55 @@ Use `tidyr` functions `spread()` or `gather()` to show data that counts the numb
 #   Jazz <int>, Latin <int>, Metal <int>, Opera <int>, Pop <int>, `R&B/Soul` <int>, Reggae <int>,
 #   Rock <int>, `Rock And Roll` <int>, `Sci Fi & Fantasy` <int>, `Science Fiction` <int>,
 #   Soundtrack <int>, `TV Shows` <int>, World <int>, `<NA>` <int>
-  
+
 ```
 
 
 
 Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes 
 ```{r}
-
+tracks %>%
+  as_tibble() %>%
+  ggplot() +
+  geom_point(aes(Milliseconds,Bytes))
 ```
 
 
 Create a Scatter Plot of `tracks`, x = milliseconds and y = bytes, `facet_wrap` by `media_type`
 ```{r}
-
+tracks %>%
+  left_join(media_types, by="MediaTypeId") %>%
+  rename(MediaType = Name.y) %>%
+  as_tibble() %>%
+  ggplot() +
+  geom_point(aes(Milliseconds,Bytes)) +
+  facet_wrap(~MediaType)
 ```
 
 
 Create a linear regression model using `milliseconds` as a predictor of `bytes`. Hint, formula: `bytes ~ milliseconds`
 ```{r}
-
+lrdata <- tracks %>% as_tibble()
+lm(Bytes ~ Milliseconds, lrdata)
 ```
 
 
 Create a linear model using the same formula but split it out according to `media_type`
 ```{r}
+lrdataSplit <- tracks %>% 
+  left_join(media_types, by="MediaTypeId") %>%
+  rename(MediaTypeName = Name.y) %>%
+  group_by(MediaTypeName) %>%
+  summarize(
+    n = n(),
+    ms = Milliseconds,
+    b = Bytes
+  ) %>%
+  as_tibble() 
+
+lrdataSplit
+
+lm(b ~ ms + MediaTypeName, lrdataSplit)
 
 ```
 
